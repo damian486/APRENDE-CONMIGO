@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Aprende Conmigo</title>
+<meta name="theme-color" content="#1C7C9C">
+<meta name="description" content="App para niños de 4 a 8 años: sumar, restar, multiplicar y aprender a leer.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --cielo:#E6F6FB; --lago:#1C7C9C; --maiz:#FFC83D; --huipil:#D6336C;
+  --milpa:#2F9E44; --tinta:#1D2B3A; --tarjeta:#FFFFFF; --suave:#5B6B7B;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{ --cielo:#10232C; --tarjeta:#1B3440; --tinta:#F1F5F8; --suave:#A9BAC6; color-scheme:dark; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;margin:0}
+body{background:var(--cielo);color:var(--tinta);
+  font-family:ui-rounded,"SF Pro Rounded","Nunito","Varela Round","Trebuchet MS",system-ui,sans-serif;
+  display:flex;flex-direction:column;overflow-x:hidden}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+.oculto,[hidden]{display:none!important}
+
+/* franja de tejido */
+.tejido{height:12px;flex:none;background:repeating-linear-gradient(90deg,var(--huipil) 0 18px,var(--maiz) 18px 30px,var(--milpa) 30px 48px,var(--lago) 48px 60px)}
+
+/* INICIO */
+#inicio{flex:1;display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 20px;text-align:center;overflow-y:auto}
+#inicio > :first-child{margin-top:auto} #inicio > :last-child{margin-bottom:auto}
+.pestanas{display:flex;background:var(--tarjeta);border-radius:30px;padding:5px;gap:4px;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+.pestana{padding:12px 22px;border-radius:26px;font-size:1.25rem;font-weight:800;background:transparent}
+.pestana.activa{background:var(--lago);color:#fff}
+.m-abc{background:#E8590C} .m-letras{background:#0C8599} .m-silabas{background:#9C36B5} .m-palabras{background:#5C940D}
+/* abecedario */
+#abc{flex:1;display:flex;flex-direction:column;gap:14px;padding:12px 14px 18px;max-width:640px;width:100%;margin:0 auto}
+.titulo-abc{flex:1;text-align:center;font-weight:900;font-size:1.5rem}
+.tarjeta-letra{background:var(--tarjeta);border-radius:26px;padding:16px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.08)}
+.tarjeta-letra .grande{font-size:clamp(4rem,20vw,6rem);font-weight:900;line-height:1;color:var(--lago)}
+.tarjeta-letra .dibujo{font-size:clamp(3.4rem,16vw,4.6rem);line-height:1.2}
+.tarjeta-letra .palabra{font-size:2rem;font-weight:800}
+.tarjeta-letra .palabra b{color:var(--huipil)}
+.letras{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:8px}
+.letra{aspect-ratio:1;border-radius:18px;font-size:1.9rem;font-weight:900;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.letra.vocal{outline:3px solid var(--maiz);outline-offset:-3px}
+/* lectura */
+.dibujo-grande{font-size:clamp(4.5rem,22vw,6.5rem);line-height:1}
+.modelo{font-size:1.8rem;font-weight:800;color:var(--suave);letter-spacing:.06em;width:100%;text-align:center}
+.ficha{min-width:1.6em;padding:6px 14px;border-radius:18px;background:var(--lago);color:#fff;font-size:clamp(2.6rem,12vw,3.6rem);font-weight:900;text-align:center}
+.ficha.vocal{background:var(--huipil)}
+.ficha.junta{background:var(--milpa);animation:junta .4s}
+@keyframes junta{from{transform:scale(.6)}to{transform:scale(1)}}
+.slot{display:inline-block;min-width:1.7em;margin:0 5px;border-bottom:6px solid var(--lago);color:var(--milpa)}
+.opciones.sil{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+.m-cien{background:#E67700} .m-oraciones{background:#1971C2} .m-escribir{background:#495057}
+/* escribir */
+#escribir{flex:1;display:flex;flex-direction:column;gap:12px;padding:12px 14px 18px;max-width:900px;width:100%;margin:0 auto}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;padding:10px 16px;border-radius:20px;background:var(--tarjeta);font-weight:800;font-size:1.05rem;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+.chip.activo{background:var(--lago);color:#fff}
+.pizarra{position:relative;width:100%;aspect-ratio:4/3;max-height:62vh;background:var(--tarjeta);border-radius:26px;box-shadow:0 4px 0 rgba(0,0,0,.08);overflow:hidden;touch-action:none}
+.pizarra canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.controles{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.controles .ayuda{font-size:1.15rem;padding:12px 18px}
+.controles .btn-listo{background:var(--milpa);color:#fff}
+.lleva{font-weight:800;color:var(--suave);min-width:60px;text-align:center}
+.problema.chico{font-size:clamp(1.6rem,7vw,2.2rem);color:var(--suave)}
+/* contar hasta 100 */
+.tira{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%}
+.celda-n{padding:10px 0;border-radius:12px;background:var(--cielo);font-weight:800;font-size:clamp(1.2rem,5.5vw,1.6rem);text-align:center;transition:background .2s}
+.celda-n.falta{background:var(--maiz);color:#1D2B3A}
+.celda-n.brilla,.cubo.brilla{background:var(--milpa);color:#fff}
+.bloques{display:flex;flex-direction:column;gap:6px;align-items:center;width:100%}
+.barra10{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;width:min(280px,100%);padding:3px;border-radius:6px;transition:background .2s}
+.barra10.brilla{background:var(--milpa)}
+.cubo{aspect-ratio:1;background:var(--lago);border-radius:3px}
+.sueltos{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.sueltos .cubo{width:24px;background:var(--huipil)}
+/* oraciones */
+.oracion{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pal{padding:8px 14px;border-radius:16px;background:var(--cielo);font-size:clamp(1.8rem,8vw,2.4rem);font-weight:800;transition:background .2s}
+.pal.brilla{background:var(--maiz);color:#1D2B3A}
+.opciones.sil .opcion{font-size:clamp(1.9rem,8vw,2.5rem)}
+#inicio h1{font-size:clamp(2.4rem,9vw,3.6rem);margin:0;line-height:1;color:var(--lago);letter-spacing:-.02em}
+#inicio p{margin:0;font-size:1.25rem;color:var(--suave)}
+.estrellas-total{font-size:1.5rem;font-weight:800}
+.modos{display:grid;gap:16px;width:min(420px,100%)}
+.modo{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:28px;font-size:1.7rem;font-weight:800;color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.18);transition:transform .1s}
+.modo:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.modo .signo{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.25);display:grid;place-items:center;font-size:2.4rem;flex:none}
+.modo small{display:block;font-size:.95rem;font-weight:600;opacity:.9}
+.m-suma{background:var(--milpa)} .m-resta{background:var(--huipil)} .m-mult{background:var(--lago)}
+.m-diez{background:var(--maiz);color:#1D2B3A} .m-vistazo{background:#7048E8}
+.titulo-juegos{font-size:1.1rem;font-weight:800;color:var(--suave);margin-top:6px}
+/* marco de 10 */
+.marco{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px;border-radius:18px;border:3px solid var(--lago)}
+.marco.cinco{grid-template-columns:repeat(5,1fr)}
+.hueco{position:relative;width:clamp(2.6rem,12vw,3.4rem);height:clamp(2.6rem,12vw,3.4rem);border-radius:50%;border:3px dashed var(--huipil);background:transparent;display:grid;place-items:center;font-size:clamp(1.6rem,7vw,2.1rem)}
+.hueco.contado{background:rgba(255,200,61,.35)}
+.hueco .num{position:absolute;top:-6px;right:-6px;background:var(--huipil);color:#fff;font-size:.8rem;font-weight:800;border-radius:10px;padding:1px 6px}
+.marco .obj{width:clamp(2.6rem,12vw,3.4rem);height:clamp(2.6rem,12vw,3.4rem)}
+/* vistazo */
+.tablero{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(340px,100%)}
+.celda{height:clamp(2.6rem,12vw,3.3rem);display:grid;place-items:center}
+.tapa{position:absolute;inset:0;display:none;place-items:center;font-size:4rem;background:var(--tarjeta);border-radius:16px}
+.tablero.tapado .tapa{display:grid}
+
+/* JUEGO */
+#juego{flex:1;display:flex;flex-direction:column;padding:12px 14px 18px;gap:12px;max-width:640px;width:100%;margin:0 auto}
+.barra{display:flex;align-items:center;gap:10px}
+.btn-redondo{width:52px;height:52px;border-radius:50%;background:var(--tarjeta);font-size:1.6rem;box-shadow:0 3px 0 rgba(0,0,0,.12);flex:none}
+.puntos{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
+.punto{width:14px;height:14px;border-radius:50%;background:var(--suave);opacity:.3}
+.punto.ok{background:var(--maiz);opacity:1}
+.punto.mal{background:var(--huipil);opacity:.8}
+.punto.actual{outline:3px solid var(--lago);opacity:.6}
+.contador{font-weight:800;font-size:1.3rem;min-width:62px;text-align:right}
+.problema{font-size:clamp(2.8rem,13vw,4.4rem);font-weight:900;text-align:center;letter-spacing:.02em;line-height:1.1}
+.problema .q{color:var(--huipil)}
+.escena{background:var(--tarjeta);border-radius:26px;padding:14px;min-height:170px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;box-shadow:0 4px 0 rgba(0,0,0,.08)}
+.grupo{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;padding:8px;border-radius:18px;border:3px dashed var(--lago);max-width:100%}
+.grupo.b{border-color:var(--huipil)}
+.fila{display:flex;align-items:center;gap:6px;width:100%;justify-content:center}
+.fila .etq{font-weight:800;color:var(--lago);font-size:1rem;min-width:26px}
+.signo-escena{font-size:2.2rem;font-weight:900;color:var(--suave)}
+.obj{position:relative;font-size:clamp(1.8rem,8vw,2.5rem);width:1.35em;height:1.35em;display:grid;place-items:center;border-radius:12px;transition:transform .25s,opacity .5s}
+.obj.peq{font-size:clamp(1.3rem,6vw,1.9rem)}
+.obj.contado{background:rgba(255,200,61,.35);transform:scale(1.12)}
+.obj .num{position:absolute;top:-6px;right:-6px;background:var(--lago);color:#fff;font-size:.8rem;font-weight:800;border-radius:10px;padding:1px 6px;font-family:inherit}
+.obj.se-va{opacity:.25;transform:translateY(-10px) rotate(-12deg)}
+.obj.se-va::after{content:"";position:absolute;inset:18% 8%;border-top:4px solid var(--huipil);transform:rotate(-35deg) translateY(45%)}
+.ayudas{display:flex;gap:10px;justify-content:center}
+.ayuda{padding:10px 18px;border-radius:20px;background:var(--tarjeta);font-weight:700;font-size:1.05rem;box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.opciones{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:auto}
+.opcion{padding:18px 0;border-radius:24px;background:var(--maiz);color:#1D2B3A;font-size:clamp(2.2rem,10vw,3rem);font-weight:900;box-shadow:0 6px 0 #C99A1E;transition:transform .1s}
+.opcion:active{transform:translateY(4px);box-shadow:0 2px 0 #C99A1E}
+.opcion.bien{background:var(--milpa);color:#fff;box-shadow:0 6px 0 #1F6E2F}
+.opcion.error{background:var(--huipil);color:#fff;box-shadow:0 6px 0 #9C1F4D;animation:sacudir .4s}
+.opcion:disabled{opacity:.55}
+.mensaje{text-align:center;font-size:1.4rem;font-weight:800;min-height:1.8rem;color:var(--lago)}
+@keyframes sacudir{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+
+/* FINAL */
+#final{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
+#final h2{font-size:2.6rem;margin:0;color:var(--milpa)}
+#final .grandes{font-size:3rem;letter-spacing:4px}
+#final p{font-size:1.3rem;margin:0}
+.btn-grande{padding:18px 30px;border-radius:28px;font-size:1.5rem;font-weight:800;color:#fff;background:var(--lago);box-shadow:0 6px 0 #135A72}
+.btn-sec{padding:12px 24px;border-radius:22px;font-size:1.2rem;font-weight:700;background:var(--tarjeta)}
+
+/* confeti */
+.confeti{position:fixed;top:-20px;width:12px;height:16px;border-radius:3px;pointer-events:none;animation:caer 1.4s linear forwards;z-index:50}
+@keyframes caer{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.confeti{display:none}.opcion.error{animation:none}}
+</style>
+</head>
+<body>
+<div class="tejido"></div>
+
+<!-- INICIO -->
+<section id="inicio">
+  <h1>Aprende Conmigo</h1>
+  <p>¿Qué quieres aprender hoy?</p>
+  <div class="estrellas-total">⭐ <span id="totalEstrellas">0</span></div>
+  <div class="pestanas">
+    <button class="pestana activa" data-tab="num">🔢 Números</button>
+    <button class="pestana" data-tab="leer">📖 Leer</button>
+  </div>
+  <div class="modos" id="tab-leer" hidden>
+    <button class="modo m-abc" id="btnAbc"><span class="signo">🔤</span><span>Abecedario<small>Toca una letra y escúchala</small></span></button>
+    <button class="modo m-letras" data-modo="letras"><span class="signo">🐝</span><span>¿Con qué letra empieza?<small>Escucha y elige la letra</small></span></button>
+    <button class="modo m-silabas" data-modo="silabas"><span class="signo">ma</span><span>Juntar letras<small>m + a = ma</small></span></button>
+    <button class="modo m-palabras" data-modo="palabras"><span class="signo">🦆</span><span>Arma la palabra<small>pa + to = pato</small></span></button>
+    <button class="modo m-oraciones" data-modo="oraciones"><span class="signo">📖</span><span>Leer oraciones<small>Lee y toca el dibujo</small></span></button>
+    <button class="modo m-escribir" data-abrir="vocales"><span class="signo">✏️</span><span>Aprender a escribir<small>Sigue la letra con el lápiz</small></span></button>
+  </div>
+  <div class="modos" id="tab-num">
+    <button class="modo m-suma" data-modo="suma"><span class="signo">+</span><span>Sumar<small>Juntar cosas</small></span></button>
+    <button class="modo m-resta" data-modo="resta"><span class="signo">−</span><span>Restar<small>Quitar cosas</small></span></button>
+    <button class="modo m-mult" data-modo="mult"><span class="signo">×</span><span>Multiplicar<small>Grupos iguales</small></span></button>
+    <div class="titulo-juegos">Juegos de mente rápida</div>
+    <button class="modo m-diez" data-modo="diez"><span class="signo">🤝</span><span>Amigos del 10<small>¿Cuánto falta?</small></span></button>
+    <button class="modo m-vistazo" data-modo="vistazo"><span class="signo">👀</span><span>¿Cuántos hay?<small>Mira rápido y responde</small></span></button>
+    <button class="modo m-cien" data-modo="cien"><span class="signo">💯</span><span>Contar hasta 100<small>¿Qué número sigue?</small></span></button>
+    <button class="modo m-escribir" data-abrir="numeros"><span class="signo">✏️</span><span>Escribir números<small>Sigue el número con el lápiz</small></span></button>
+  </div>
+</section>
+
+<!-- JUEGO -->
+<section id="juego" class="oculto">
+  <div class="barra">
+    <button class="btn-redondo" id="btnCasa" aria-label="Volver al inicio">🏠</button>
+    <div class="puntos" id="puntos"></div>
+    <div class="contador">⭐ <span id="estrellasRonda">0</span></div>
+  </div>
+  <div class="problema" id="problema"></div>
+  <div class="escena" id="escena"></div>
+  <div class="ayudas">
+    <button class="ayuda" id="btnOir">🔊 Escuchar</button>
+    <button class="ayuda" id="btnContar">👆 Contar juntos</button>
+  </div>
+  <div class="mensaje" id="mensaje"></div>
+  <div class="opciones" id="opciones"></div>
+</section>
+
+<!-- ESCRIBIR -->
+<section id="escribir" class="oculto">
+  <div class="barra">
+    <button class="btn-redondo" id="btnCasaEsc" aria-label="Volver al inicio">🏠</button>
+    <div class="titulo-abc">Aprender a escribir</div>
+    <div class="contador">⭐ <span id="estrellasEsc">0</span></div>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip" data-cat="vocales">Vocales</button>
+    <button class="chip" data-cat="letras">Letras</button>
+    <button class="chip" data-cat="mayusculas">Mayúsculas</button>
+    <button class="chip" data-cat="numeros">Números</button>
+    <button class="chip" data-cat="palabras">Palabras</button>
+  </div>
+  <div class="pizarra" id="pizarra">
+    <canvas id="guia"></canvas>
+    <canvas id="tinta"></canvas>
+  </div>
+  <div class="mensaje" id="msgEsc"></div>
+  <div class="controles">
+    <button class="btn-redondo" id="escAnt" aria-label="Anterior">◀</button>
+    <button class="ayuda" id="escOir">🔊</button>
+    <button class="ayuda" id="escBorrar">🧽 Borrar</button>
+    <button class="ayuda btn-listo" id="escListo">✅ Listo</button>
+    <button class="btn-redondo" id="escSig" aria-label="Siguiente">▶</button>
+  </div>
+  <div class="lleva" id="escLleva"></div>
+</section>
+
+<!-- ABECEDARIO -->
+<section id="abc" class="oculto">
+  <div class="barra">
+    <button class="btn-redondo" id="btnCasaAbc" aria-label="Volver al inicio">🏠</button>
+    <div class="titulo-abc">Abecedario</div>
+    <div style="width:52px"></div>
+  </div>
+  <div class="tarjeta-letra" id="tarjetaLetra"></div>
+  <div class="letras" id="letras"></div>
+</section>
+
+<!-- FINAL -->
+<section id="final" class="oculto">
+  <h2 id="tituloFinal">¡Lo lograste!</h2>
+  <div class="grandes" id="estrellasFinal"></div>
+  <p id="textoFinal"></p>
+  <button class="btn-grande" id="btnOtra">Jugar otra vez</button>
+  <button class="btn-sec" id="btnInicio">Volver al inicio</button>
+</section>
+
+<div class="tejido"></div>
+
+<script>
+// ---------- Datos ----------
+const OBJETOS = ["🌽","🥑","🍌","🐔","🐟","🦋","🌳","🍊","🐣","🌸"];
+const NIVELES = { // nivel 1, 2, 3
+  suma:[{max:5},{max:10},{max:18}],
+  resta:[{max:5},{max:10},{max:18}],
+  mult:[{a:3,b:3},{a:5,b:5},{a:6,b:6}],
+  diez:[{meta:5},{meta:10},{meta:10}],
+  vistazo:[{min:1,max:4,ms:2200},{min:2,max:6,ms:1800},{min:3,max:9,ms:1400}]
+};
+const PREGUNTAS_POR_RONDA = 10;
+// Abecedario: letra, nombre (para la voz), palabra, dibujo
+const ABC = [
+ ["A","a","abeja","🐝"],["B","be","ballena","🐳"],["C","ce","casa","🏠"],["D","de","dado","🎲"],
+ ["E","e","elefante","🐘"],["F","efe","foca","🦭"],["G","ge","gato","🐱"],["H","hache","helado","🍦"],
+ ["I","i","isla","🏝️"],["J","jota","jirafa","🦒"],["K","ka","koala","🐨"],["L","ele","luna","🌙"],
+ ["M","eme","mono","🐒"],["N","ene","nube","☁️"],["Ñ","eñe","piña","🍍"],["O","o","oso","🐻"],
+ ["P","pe","pato","🦆"],["Q","cu","queso","🧀"],["R","erre","ratón","🐭"],["S","ese","sol","☀️"],
+ ["T","te","tomate","🍅"],["U","u","uva","🍇"],["V","uve","vaca","🐮"],["W","doble uve","wafle","🧇"],
+ ["X","equis","taxi","🚕"],["Y","ye","yoyo","🪀"],["Z","zeta","zapato","👞"]
+];
+const VOCALES = ["a","e","i","o","u"];
+const LECTURA = ["letras","silabas","palabras","oraciones"];
+const PROPIOS = [...LECTURA,"cien"];
+// Oraciones por nivel: [oración, dibujo]
+const ORACIONES = [
+ [["El pato nada.","🦆"],["La luna sale.","🌙"],["El sol sale.","☀️"],["La vaca come.","🐮"],["El oso come.","🐻"],["La foca nada.","🦭"],["Mi mamá me ama.","👩‍👧"],["El mono come.","🐒"],["La rana salta.","🐸"],["Mi casa es bonita.","🏠"]],
+ [["El gato toma leche.","🐱"],["La niña lee un libro.","📖"],["Papá toma café.","☕"],["El perro corre mucho.","🐕"],["La gallina pone un huevo.","🐔"],["El pez nada en el lago.","🐟"],["La mariposa vuela.","🦋"],["El árbol es grande.","🌳"],["Hoy llueve mucho.","🌧️"],["El bebé duerme.","👶"]],
+ [["El conejo come zanahoria.","🐰"],["La abuela hace tortillas.","🫓"],["El niño juega con la pelota.","⚽"],["La tortuga camina despacio.","🐢"],["Sembramos un árbol en el cerro.","🌱"],["El tren va muy rápido.","🚂"],["La jirafa tiene el cuello largo.","🦒"],["Las abejas hacen miel.","🐝"],["El barco navega en el lago.","⛵"],["Mi hermana toca la guitarra.","🎸"]]
+];
+// Letras para el juego "¿Con qué letra empieza?" por nivel
+const LETRAS_NIVEL = [["A","E","I","O","U"],["A","E","I","O","U","M","P","S","L","T","N","D","G","C","B"],ABC.map(x=>x[0]).filter(l=>l!=="Ñ"&&l!=="X")];
+// Consonantes para juntar con vocales (método silábico)
+const CONS_NIVEL = [["m","p","l","s"],["m","p","l","s","t","n","d","f"],["t","n","d","f","b","v","r","j","ñ"]];
+const NOMBRE_CONS = {m:"eme",p:"pe",l:"ele",s:"ese",t:"te",n:"ene",d:"de",f:"efe",b:"be",v:"uve",r:"erre",j:"jota","ñ":"eñe"};
+// Palabras divididas en sílabas
+const PALABRAS_NIVEL = [
+ [["ma","no","✋"],["mo","no","🐒"],["pa","to","🦆"],["pa","pa","🥔"],["so","pa","🍲"],["lu","na","🌙"],["lu","pa","🔍"],["pi","no","🌲"],["o","so","🐻"],["ma","pa","🗺️"]],
+ [["da","do","🎲"],["ta","za","☕"],["nu","be","☁️"],["pe","ra","🍐"],["bo","ta","👢"],["fo","ca","🦭"],["va","ca","🐮"],["ga","to","🐱"],["co","co","🥥"],["ca","sa","🏠"],["ca","ma","🛏️"],["ra","na","🐸"],["lo","bo","🐺"],["pi","ña","🍍"],["u","va","🍇"]],
+ [["to","ma","te","🍅"],["pa","lo","ma","🕊️"],["pe","lo","ta","⚽"],["ca","mi","sa","👕"],["za","pa","to","👞"],["ji","ra","fa","🦒"],["co","ne","jo","🐰"],["ma","le","ta","🧳"],["ga","lli","na","🐔"],["ba","na","na","🍌"]]
+];
+const FELICIDADES = ["¡Muy bien!","¡Excelente!","¡Lo hiciste!","¡Súper!","¡Genial!","¡Qué inteligente!"];
+const NUMEROS = ["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve","veinte"];
+
+// ---------- Guardado (seguro si no hay almacenamiento) ----------
+function leer(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}
+function guardar(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let total = leer("cc_estrellas",0);
+let niveles = Object.assign({suma:0,resta:0,mult:0,diez:0,vistazo:0,letras:0,silabas:0,palabras:0,cien:0,oraciones:0},leer("cc_niveles",{}));
+
+// ---------- Estado ----------
+let modo="suma", n=0, estrellasRonda=0, resultados=[], actual=null, intentos=0, racha=0, fallosSeguidos=0, bloqueado=false;
+const $=id=>document.getElementById(id);
+
+// ---------- Voz y sonido ----------
+function hablar(t){
+  try{
+    if(!("speechSynthesis" in window))return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);
+    u.lang="es-MX"; u.rate=.9; u.pitch=1.15;
+    const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.startsWith("es"));
+    if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+let ctx=null;
+function tono(f,dur=.15,tipo="sine",retraso=0){
+  try{
+    ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=tipo;o.frequency.value=f;
+    const t=ctx.currentTime+retraso;
+    g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+dur);
+  }catch(e){}
+}
+const sBien=()=>{tono(523,.12,"triangle");tono(659,.12,"triangle",.1);tono(784,.25,"triangle",.2)};
+const sMal=()=>{tono(220,.25,"sawtooth")};
+const sTap=i=>tono(400+i*35,.08,"square");
+
+// ---------- Utilidades ----------
+const azar=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const mezclar=arr=>arr.sort(()=>Math.random()-.5);
+const palabra=x=>NUMEROS[x]||String(x);
+
+function problemaLectura(nv){
+  if(modo==="cien"){
+    const max=[20,50,100][nv];
+    const tipos=nv===0?["sigue","antes"]:["sigue","antes","decenas","bloques"];
+    const t=tipos[azar(0,tipos.length-1)];
+    let r,seq,falta;
+    if(t==="sigue"){const a=azar(1,max-3);seq=[a,a+1,a+2,a+3];falta=3;r=a+3}
+    else if(t==="antes"){const a=azar(2,max-2);seq=[a-1,a,a+1];falta=0;r=a-1}
+    else if(t==="decenas"){const k=azar(1,8);seq=[k*10,k*10+10,k*10+20];falta=2;r=k*10+20}
+    else{r=azar(11,max-1);seq=null;falta=-1}
+    const salto=(t==="decenas"||t==="bloques")?10:1;
+    const ops=new Set([r]);
+    for(const d of mezclar([salto,-salto,1,-1,2])){if(ops.size>=3)break;const x=r+d;if(x>0&&x<=110)ops.add(x)}
+    return {tipo:t,r,seq,falta,opciones:mezclar([...ops]),voz:String(r)};
+  }
+  if(modo==="oraciones"){
+    const lista=ORACIONES[nv],[frase,dib]=lista[azar(0,lista.length-1)];
+    const otros=mezclar(ORACIONES.flat().map(x=>x[1]).filter(x=>x!==dib)).slice(0,2);
+    return {frase,r:dib,opciones:mezclar([dib,...otros]),voz:frase};
+  }
+  if(modo==="letras"){
+    const pool=LETRAS_NIVEL[nv], L=pool[azar(0,pool.length-1)];
+    const [letra,nombre,pal,dib]=ABC.find(x=>x[0]===L);
+    const ops=new Set([letra.toLowerCase()]);
+    while(ops.size<3){const o=pool[azar(0,pool.length-1)].toLowerCase();ops.add(o)}
+    return {tipo:"letras",r:letra.toLowerCase(),palabra:pal,emoji:dib,nombre,opciones:mezclar([...ops]),voz:`${nombre}, de ${pal}`};
+  }
+  if(modo==="silabas"){
+    const pool=CONS_NIVEL[nv], c=pool[azar(0,pool.length-1)], v=VOCALES[azar(0,4)];
+    const otras=mezclar(VOCALES.filter(x=>x!==v)).slice(0,2);
+    return {tipo:"silabas",c,v,r:c+v,opciones:mezclar([c+v,...otras.map(x=>c+x)]),voz:c+v};
+  }
+  const lista=PALABRAS_NIVEL[nv], w=lista[azar(0,lista.length-1)];
+  const sil=w.slice(0,-1), dib=w[w.length-1], pal=sil.join("");
+  const todas=[...new Set(PALABRAS_NIVEL.flat().flatMap(x=>x.slice(0,-1)))].filter(x=>!sil.includes(x));
+  const extra=mezclar(todas).slice(0,nv===1?2:1);
+  return {tipo:"palabras",sil,palabra:pal,emoji:dib,idx:0,errores:0,r:pal,opciones:mezclar([...sil,...extra]),voz:pal};
+}
+function crearProblema(){
+  const nv=niveles[modo], emoji=OBJETOS[azar(0,OBJETOS.length-1)];
+  if(PROPIOS.includes(modo))return problemaLectura(nv);
+  let a,b,r;
+  if(modo==="suma"){const m=NIVELES.suma[nv].max;a=azar(1,Math.min(9,m-1));b=azar(1,Math.min(9,m-a));r=a+b}
+  else if(modo==="resta"){const m=NIVELES.resta[nv].max;a=azar(2,m);b=azar(1,Math.min(9,a));r=a-b}
+  else if(modo==="mult"){const L=NIVELES.mult[nv];a=azar(1,L.a);b=azar(1,L.b);if(nv>0&&a===1)a=2;r=a*b}
+  else if(modo==="diez"){b=NIVELES.diez[nv].meta;a=azar(nv===2?1:0,b-1);if(a===0)a=1;r=b-a}
+  else{const L=NIVELES.vistazo[nv];a=azar(L.min,L.max);b=0;r=a}
+  // opciones
+  const ops=new Set([r]);
+  const saltos=modo==="mult"?[b,-b,1,-1,2]:[1,-1,2,-2,3];
+  for(const s of mezclar(saltos)){if(ops.size>=3)break;const x=r+s;if(x>=0)ops.add(x)}
+  while(ops.size<3)ops.add(r+ops.size+1);
+  return {a,b,r,emoji,opciones:mezclar([...ops])};
+}
+
+// ---------- Pantallas ----------
+function mostrar(id){["inicio","juego","final","abc","escribir"].forEach(s=>$(s).classList.toggle("oculto",s!==id))}
+function pintarTotal(){$("totalEstrellas").textContent=total}
+
+function empezar(m){
+  modo=m;n=0;estrellasRonda=0;resultados=[];racha=0;fallosSeguidos=0;
+  $("estrellasRonda").textContent=0;
+  mostrar("juego");siguiente();
+}
+
+function pintarPuntos(){
+  $("puntos").innerHTML="";
+  for(let i=0;i<PREGUNTAS_POR_RONDA;i++){
+    const d=document.createElement("span");
+    d.className="punto"+(resultados[i]===true?" ok":resultados[i]===false?" mal":"")+(i===n?" actual":"");
+    $("puntos").appendChild(d);
+  }
+}
+
+function siguiente(){
+  pistaTimers.forEach(clearTimeout);
+  if(n>=PREGUNTAS_POR_RONDA)return terminar();
+  actual=crearProblema();intentos=0;bloqueado=false;
+  const signo=modo==="suma"?"+":modo==="resta"?"−":"×";
+  if(modo==="diez")$("problema").innerHTML=`${actual.a} + <span class="q">?</span> = ${actual.b}`;
+  else if(modo==="vistazo")$("problema").innerHTML=`¿Cuántos? <span class="q">?</span>`;
+  else if(modo==="letras")$("problema").innerHTML=`<span class="q">?</span>${actual.palabra.slice(1)}`;
+  else if(modo==="silabas")$("problema").innerHTML=`${actual.c} + ${actual.v} = <span class="q">?</span>`;
+  else if(modo==="cien"&&actual.seq)$("problema").innerHTML=actual.seq.map((x,i)=>i===actual.falta?`<span class="q">?</span>`:x).join(", ");
+  else if(modo==="cien")$("problema").innerHTML=`¿Cuántos? <span class="q">?</span>`;
+  else if(modo==="oraciones")$("problema").textContent="Lee y toca el dibujo";
+  else if(modo==="palabras")$("problema").innerHTML=actual.sil.map(()=>`<span class="slot">&nbsp;</span>`).join("");
+  else $("problema").innerHTML=`${actual.a} ${signo} ${actual.b} = <span class="q">?</span>`;
+  $("btnContar").textContent=modo==="vistazo"?"👀 Ver otra vez":LECTURA.includes(modo)?"💡 Pista":"👆 Contar juntos";
+  $("opciones").classList.toggle("sil",modo==="palabras");
+  $("problema").classList.toggle("chico",modo==="oraciones");
+  $("mensaje").textContent="";
+  pintarPuntos();pintarEscena();
+  $("opciones").innerHTML="";
+  actual.opciones.forEach(v=>{
+    const b=document.createElement("button");
+    b.className="opcion";b.textContent=v;
+    b.onclick=()=>modo==="palabras"?responderSilaba(v,b):responder(v,b);
+    if(modo==="vistazo")b.disabled=true;
+    $("opciones").appendChild(b);
+  });
+  setTimeout(leerProblema,300);
+}
+
+function leerProblema(){
+  if(modo==="cien"){
+    const t=actual.tipo;
+    if(t==="sigue")return hablar(`${actual.seq.slice(0,3).join(", ")}. ¿Qué número sigue?`);
+    if(t==="antes")return hablar(`¿Qué número va antes del ${actual.seq[1]}?`);
+    if(t==="decenas")return hablar(`Contamos de diez en diez. ${actual.seq.slice(0,2).join(", ")}. ¿Qué número sigue?`);
+    return hablar("Cada barra tiene diez. ¿Cuántos hay?");
+  }
+  if(modo==="oraciones")return niveles.oraciones===0?pista():hablar("Lee la oración y toca el dibujo");
+  if(modo==="letras")return hablar(`¿Con qué letra empieza ${actual.palabra}?`);
+  if(modo==="silabas")return hablar(`¿Cómo suena ${NOMBRE_CONS[actual.c]} con ${actual.v}?`);
+  if(modo==="palabras")return hablar(`Arma la palabra ${actual.palabra}`);
+  const {a,b}=actual;
+  if(modo==="suma")hablar(`${palabra(a)} más ${palabra(b)}`);
+  else if(modo==="resta")hablar(`${palabra(a)} menos ${palabra(b)}`);
+  else if(modo==="mult")hablar(`${palabra(a)} grupos de ${palabra(b)}`);
+  else if(modo==="diez")hablar(`Tengo ${palabra(a)}. ¿Cuántos faltan para ${palabra(b)}?`);
+  else hablar("¿Cuántos hay? Mira rápido");
+}
+
+// Dibuja los objetos que el niño puede tocar para contar
+function crearObj(clase){
+  const o=document.createElement("button");
+  o.className="obj"+(clase?" "+clase:"");o.textContent=actual.emoji;
+  o.setAttribute("aria-label",actual.emoji);
+  return o;
+}
+function escenaLectura(){
+  const e=$("escena");e.innerHTML="";
+  if(modo==="cien"){
+    if(actual.tipo==="bloques"){
+      const d=Math.floor(actual.r/10),u=actual.r%10;
+      const b=document.createElement("div");b.className="bloques";
+      for(let i=0;i<d;i++){const f=document.createElement("div");f.className="barra10";f.innerHTML='<span class="cubo"></span>'.repeat(10);b.appendChild(f)}
+      const su=document.createElement("div");su.className="sueltos";su.innerHTML='<span class="cubo"></span>'.repeat(u);b.appendChild(su);
+      e.appendChild(b);return;
+    }
+    // tira de números (fila de la tabla del 100) con el número que falta
+    let celdas;
+    if(actual.tipo==="decenas")celdas=[10,20,30,40,50,60,70,80,90,100];
+    else{const ini=Math.floor((actual.r-1)/10)*10+1;celdas=[...Array(10)].map((_,i)=>ini+i)}
+    const t=document.createElement("div");t.className="tira";
+    celdas.forEach(x=>{const c=document.createElement("div");c.className="celda-n"+(x===actual.r?" falta":"");c.textContent=x===actual.r?"?":x;c.dataset.n=x;t.appendChild(c)});
+    e.appendChild(t);return;
+  }
+  if(modo==="oraciones"){
+    const o=document.createElement("div");o.className="oracion";
+    actual.frase.split(" ").forEach(w=>{
+      const b=document.createElement("button");b.className="pal";b.textContent=w;
+      b.onclick=()=>{document.querySelectorAll(".pal").forEach(x=>x.classList.remove("brilla"));b.classList.add("brilla");hablar(w.replace(/[.,]/g,""))};
+      o.appendChild(b);
+    });
+    e.appendChild(o);return;
+  }
+  if(modo==="silabas"){
+    e.innerHTML=`<div class="ficha">${actual.c}</div><span class="signo-escena">+</span><div class="ficha vocal">${actual.v}</div>`;
+    return;
+  }
+  const d=document.createElement("div");d.className="dibujo-grande";d.textContent=actual.emoji;e.appendChild(d);
+  // En el primer nivel de "Arma la palabra" se muestra la palabra como modelo
+  if(modo==="palabras"&&niveles.palabras===0){const m=document.createElement("div");m.className="modelo";m.textContent=actual.sil.join(" - ");e.appendChild(m)}
+}
+function pintarEscena(){
+  if(PROPIOS.includes(modo))return escenaLectura();
+  const e=$("escena");e.innerHTML="";
+  const {a,b}=actual;
+  if(modo==="suma"){
+    const g1=document.createElement("div");g1.className="grupo";
+    const g2=document.createElement("div");g2.className="grupo b";
+    for(let i=0;i<a;i++)g1.appendChild(crearObj(a+b>12?"peq":""));
+    for(let i=0;i<b;i++)g2.appendChild(crearObj(a+b>12?"peq":""));
+    const s=document.createElement("span");s.className="signo-escena";s.textContent="+";
+    e.append(g1,s,g2);
+  }else if(modo==="resta"){
+    const g=document.createElement("div");g.className="grupo";
+    for(let i=0;i<a;i++)g.appendChild(crearObj(a>12?"peq":""));
+    e.appendChild(g);
+    // los que se quitan se van poco a poco
+    const objs=[...g.children];
+    setTimeout(()=>{for(let i=0;i<b;i++)setTimeout(()=>{objs[a-1-i].classList.add("se-va");objs[a-1-i].dataset.fuera="1"},i*220)},700);
+  }else if(modo==="diez"){
+    const m=document.createElement("div");m.className="marco";
+    for(let i=0;i<b;i++){
+      if(i<a)m.appendChild(crearObj(""));
+      else{const h=document.createElement("button");h.className="hueco";h.setAttribute("aria-label","espacio vacío");m.appendChild(h)}
+    }
+    e.appendChild(m);
+  }else if(modo==="vistazo"){
+    const t=document.createElement("div");t.className="tablero";t.id="tablero";
+    const celdas=mezclar([...Array(12).keys()]).slice(0,a);
+    for(let i=0;i<12;i++){
+      const c=document.createElement("div");c.className="celda";
+      if(celdas.includes(i))c.appendChild(crearObj(""));
+      t.appendChild(c);
+    }
+    const tapa=document.createElement("div");tapa.className="tapa";tapa.textContent="🙈";t.appendChild(tapa);
+    e.appendChild(t);
+    taparPronto();
+  }else{
+    for(let f=0;f<a;f++){
+      const fila=document.createElement("div");fila.className="fila";
+      const etq=document.createElement("span");etq.className="etq";etq.textContent=f+1;
+      const g=document.createElement("div");g.className="grupo"+(f%2?" b":"");g.style.padding="4px 6px";
+      for(let i=0;i<b;i++)g.appendChild(crearObj(a*b>12?"peq":""));
+      fila.append(etq,g);e.appendChild(fila);
+    }
+  }
+  activarConteo();
+}
+
+// Tocar un objeto lo cuenta en voz alta
+let cuenta=0;
+function activarConteo(){
+  cuenta=0;
+  const sel=modo==="diez"?"#escena .hueco":"#escena .obj";
+  document.querySelectorAll(sel).forEach(o=>{
+    o.onclick=()=>{
+      if(modo==="vistazo"&&$("tablero").classList.contains("tapado"))return;
+      if(o.dataset.fuera||o.classList.contains("contado"))return;
+      cuenta++;o.classList.add("contado");
+      const s=document.createElement("span");s.className="num";s.textContent=cuenta;o.appendChild(s);
+      sTap(cuenta);hablar(palabra(cuenta));
+    };
+  });
+}
+
+// Cuenta automáticamente todos los que quedan (ayuda)
+let temporizador=null;
+function taparPronto(){
+  clearTimeout(temporizador);
+  const t=$("tablero");t.classList.remove("tapado");
+  temporizador=setTimeout(()=>{
+    t.classList.add("tapado");
+    document.querySelectorAll(".opcion").forEach(b=>{if(!b.classList.contains("error"))b.disabled=false});
+  },NIVELES.vistazo[niveles[modo]].ms);
+}
+function destapar(){clearTimeout(temporizador);const t=$("tablero");if(t)t.classList.remove("tapado")}
+let pistaTimers=[];
+function pista(){
+  pistaTimers.forEach(clearTimeout);pistaTimers=[];
+  if(modo==="cien"){
+    if(actual.tipo==="bloques"){
+      const barras=[...document.querySelectorAll(".barra10")],sueltos=[...document.querySelectorAll(".sueltos .cubo")];
+      let k=0;
+      barras.forEach((b,i)=>pistaTimers.push(setTimeout(()=>{b.classList.add("brilla");hablar(String((i+1)*10));sTap(i)},(k++)*800)));
+      sueltos.forEach((c,i)=>pistaTimers.push(setTimeout(()=>{c.classList.add("brilla");hablar(String(barras.length*10+i+1));sTap(i+3)},(k++)*800)));
+      return;
+    }
+    const celdas=[...document.querySelectorAll(".celda-n")];
+    const hasta=celdas.findIndex(c=>c.classList.contains("falta"));
+    celdas.slice(0,hasta+1).forEach((c,i)=>pistaTimers.push(setTimeout(()=>{c.classList.add("brilla");c.textContent=c.dataset.n;hablar(c.dataset.n);sTap(i)},i*750)));
+    return;
+  }
+  if(modo==="oraciones"){
+    const pals=[...document.querySelectorAll(".pal")];
+    pals.forEach((p,i)=>pistaTimers.push(setTimeout(()=>{pals.forEach(x=>x.classList.remove("brilla"));p.classList.add("brilla");hablar(p.textContent.replace(/[.,]/g,""))},i*850)));
+    pistaTimers.push(setTimeout(()=>pals.forEach(x=>x.classList.remove("brilla")),pals.length*850+300));
+    return;
+  }
+  if(modo==="letras")hablar(`Escucha: ${actual.palabra}... ${actual.palabra}`);
+  else if(modo==="silabas")hablar(actual.r);
+  else hablar(actual.sil[actual.idx]);
+}
+function contarJuntos(){
+  if(PROPIOS.includes(modo))return pista();
+  if(modo==="vistazo"&&!bloqueado&&$("mensaje").textContent===""){activarLimpio();taparPronto();return}
+  if(modo==="vistazo")destapar();
+  activarLimpio();
+  const sel=modo==="diez"?"#escena .hueco":"#escena .obj";
+  const objs=[...document.querySelectorAll(sel)].filter(o=>!o.dataset.fuera);
+  objs.forEach((o,i)=>setTimeout(()=>o.click(),i*(objs.length>15?350:550)));
+}
+function activarLimpio(){
+  document.querySelectorAll("#escena .obj, #escena .hueco").forEach(o=>{o.classList.remove("contado");const s=o.querySelector(".num");if(s)s.remove()});
+  cuenta=0;
+}
+
+function responder(v,btn){
+  if(bloqueado)return;
+  intentos++;
+  if(v===actual.r){btn.classList.add("bien");ganar(intentos===1)}
+  else{btn.classList.add("error");btn.disabled=true;fallar()}
+}
+
+// "Arma la palabra": tocar las sílabas en orden
+function responderSilaba(v,btn){
+  if(bloqueado)return;
+  if(v===actual.sil[actual.idx]){
+    btn.disabled=true;btn.classList.add("bien");
+    document.querySelectorAll("#problema .slot")[actual.idx].textContent=v;
+    sTap(actual.idx+3);actual.idx++;
+    if(actual.idx===actual.sil.length)ganar(actual.errores===0);
+    else hablar(v);
+  }else{
+    actual.errores++;btn.classList.add("error");setTimeout(()=>btn.classList.remove("error"),500);
+    fallar();
+  }
+}
+
+function ganar(primera){
+  bloqueado=true;
+  const q=$("problema").querySelector(".q");if(q)q.textContent=actual.r;
+  if(modo==="diez")document.querySelectorAll("#escena .hueco").forEach((h,i)=>setTimeout(()=>{h.textContent=actual.emoji;h.style.borderStyle="solid"},i*120));
+  if(modo==="vistazo")destapar();
+  if(modo==="cien"){pistaTimers.forEach(clearTimeout);document.querySelectorAll(".celda-n.falta").forEach(c=>{c.textContent=actual.r;c.classList.add("brilla")})}
+  if(modo==="silabas")$("escena").innerHTML=`<div class="ficha junta">${actual.r}</div>`;
+  resultados[n]=primera;
+  if(primera){estrellasRonda++;total++;guardar("cc_estrellas",total);racha++;fallosSeguidos=0}
+  else{racha=0}
+  // sube de nivel con 4 aciertos seguidos
+  if(racha>=4&&niveles[modo]<2){niveles[modo]++;racha=0;guardar("cc_niveles",niveles);$("mensaje").textContent="¡Subiste de nivel! 🚀"}
+  else $("mensaje").textContent=primera?FELICIDADES[azar(0,FELICIDADES.length-1)]:"¡Bien, lo encontraste!";
+  $("estrellasRonda").textContent=estrellasRonda;
+  const frase=$("mensaje").textContent.replace(/[^\wáéíóúñ¡!¿? ]/gi,"");
+  sBien();confeti();hablar(actual.voz?`${actual.voz}. ${frase}`:frase);
+  setTimeout(()=>{n++;siguiente()},LECTURA.includes(modo)?2400:1800);
+}
+
+function fallar(){
+  sMal();racha=0;fallosSeguidos++;
+  if(fallosSeguidos>=3&&niveles[modo]>0){niveles[modo]--;guardar("cc_niveles",niveles);fallosSeguidos=0}
+  const txt=modo==="diez"?"Casi. ¡Contemos los espacios vacíos!":LECTURA.includes(modo)?"Casi. ¡Escucha otra vez!":"Casi. ¡Contemos juntos!";
+  $("mensaje").textContent=txt;
+  if(LECTURA.includes(modo))setTimeout(pista,700);
+  else if(modo==="cien"){hablar("Casi. Contemos juntos");setTimeout(pista,1200)}
+  else{hablar(txt.replace(/¡|!/g,""));setTimeout(contarJuntos,1200)}
+}
+
+function terminar(){
+  mostrar("final");
+  $("estrellasFinal").textContent="⭐".repeat(Math.max(1,Math.round(estrellasRonda/2)));
+  $("textoFinal").textContent=`Ganaste ${estrellasRonda} estrellas de ${PREGUNTAS_POR_RONDA}.`;
+  $("tituloFinal").textContent=estrellasRonda>=7?"¡Eres un campeón!":"¡Muy buen trabajo!";
+  hablar($("tituloFinal").textContent);
+  confeti();setTimeout(confeti,500);
+  pintarTotal();
+}
+
+function confeti(){
+  const colores=["#D6336C","#FFC83D","#2F9E44","#1C7C9C"];
+  for(let i=0;i<28;i++){
+    const c=document.createElement("div");c.className="confeti";
+    c.style.left=Math.random()*100+"vw";c.style.background=colores[i%4];
+    c.style.animationDelay=Math.random()*.4+"s";
+    document.body.appendChild(c);setTimeout(()=>c.remove(),2000);
+  }
+}
+
+// ---------- Abecedario ----------
+const COLORES_LETRA=["#E8590C","#0C8599","#9C36B5","#2F9E44","#D6336C","#1C7C9C"];
+function verLetra(k){
+  const [L,nombre,pal,dib]=ABC[k];
+  const ini=pal.indexOf(L.toLowerCase());
+  const marcada=pal.slice(0,ini)+`<b>${pal[ini]}</b>`+pal.slice(ini+1);
+  $("tarjetaLetra").innerHTML=`<div class="grande">${L}${L.toLowerCase()}</div><div class="dibujo">${dib}</div><div class="palabra">${marcada}</div>`;
+  const como=ini===0?"de":"como en";
+  hablar(`${nombre}. ${nombre} ${como} ${pal}`);sTap(k%10);
+}
+function abrirAbc(){
+  const c=$("letras");
+  if(!c.children.length)ABC.forEach((x,k)=>{
+    const b=document.createElement("button");
+    b.className="letra"+(VOCALES.includes(x[0].toLowerCase())?" vocal":"");
+    b.textContent=x[0];b.style.background=COLORES_LETRA[k%COLORES_LETRA.length];
+    b.onclick=()=>verLetra(k);c.appendChild(b);
+  });
+  mostrar("abc");verLetra(0);
+}
+$("btnAbc").onclick=abrirAbc;
+
+// ---------- Aprender a escribir (trazar con lápiz o dedo) ----------
+const ESCRITURA={
+  vocales:["a","e","i","o","u","A","E","I","O","U"],
+  letras:"mpsltndfbvcgrjñhyqkwxz".split(""),
+  mayusculas:ABC.map(x=>x[0]),
+  numeros:"0123456789".split(""),
+  palabras:["mi","mamá","papá","oso","sol","pato","luna","casa","lago","árbol"]
+};
+const FUENTE_ESC='ui-rounded,"SF Pro Rounded","Nunito","Varela Round","Trebuchet MS",sans-serif';
+const esc={cat:"vocales",i:0,S:0,W:0,H:0,base:0,dibujando:false,ultimo:null,lapiz:false,hecho:false,tChk:null,estrellas:0};
+const cGuia=$("guia"),cTinta=$("tinta");
+const xG=cGuia.getContext("2d"),xT=cTinta.getContext("2d");
+// lienzos ocultos para revisar el trazo (a 1/3 de tamaño)
+const ESC_R=1/3;
+const oMask=document.createElement("canvas"),oMaskAncha=document.createElement("canvas"),oTintaAncha=document.createElement("canvas"),oTinta=document.createElement("canvas");
+const OCULTOS=[oMask,oMaskAncha,oTintaAncha,oTinta];
+const color=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function escActual(){return ESCRITURA[esc.cat][esc.i]}
+function escVoz(){
+  const t=escActual();
+  if(esc.cat==="numeros")return hablar(`Escribe el número ${t}`);
+  if(esc.cat==="palabras")return hablar(`Escribe: ${t}`);
+  const e=ABC.find(x=>x[0]===t.toUpperCase());
+  hablar(`Escribe la ${e[1]}${t===t.toUpperCase()?" mayúscula":""}, de ${e[2]}`);
+}
+function escTamano(){
+  const r=$("pizarra").getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  esc.W=r.width;esc.H=r.height;
+  [cGuia,cTinta].forEach(c=>{c.width=r.width*dpr;c.height=r.height*dpr});
+  xG.setTransform(dpr,0,0,dpr,0,0);xT.setTransform(dpr,0,0,dpr,0,0);
+  OCULTOS.forEach(c=>{c.width=Math.ceil(r.width*ESC_R);c.height=Math.ceil(r.height*ESC_R);c.getContext("2d").setTransform(ESC_R,0,0,ESC_R,0,0)});
+}
+function escTexto(ctx,t){ctx.font=`700 ${esc.S}px ${FUENTE_ESC}`;ctx.textAlign="center";ctx.textBaseline="alphabetic"}
+function escGuia(){
+  escTamano();
+  const t=escActual(),W=esc.W,H=esc.H;
+  esc.base=H*0.78;esc.S=H*0.78;
+  escTexto(xG,t);
+  const w=xG.measureText(t).width;
+  if(w>W*0.86){esc.S*=W*0.86/w;escTexto(xG,t)}
+  xG.clearRect(0,0,W,H);xT.clearRect(0,0,W,H);
+  // renglones como en el cuaderno
+  const sup=esc.base-esc.S*0.72,med=esc.base-esc.S*0.5;
+  xG.lineWidth=2;xG.strokeStyle=color("--suave");xG.globalAlpha=.45;
+  [[sup,[]],[med,[10,10]],[esc.base,[]]].forEach(([y,d])=>{xG.setLineDash(d);xG.beginPath();xG.moveTo(16,y);xG.lineTo(W-16,y);xG.stroke()});
+  xG.globalAlpha=1;
+  // letra guía: relleno suave y contorno punteado
+  xG.fillStyle=color("--lago");xG.globalAlpha=.13;xG.fillText(t,W/2,esc.base);xG.globalAlpha=.75;
+  xG.setLineDash([Math.max(6,esc.S*.03),Math.max(6,esc.S*.03)]);xG.lineWidth=Math.max(2,esc.S*.012);xG.strokeStyle=color("--lago");
+  xG.strokeText(t,W/2,esc.base);xG.setLineDash([]);xG.globalAlpha=1;
+  // máscaras para revisar
+  OCULTOS.forEach(c=>c.getContext("2d").clearRect(0,0,W,H));
+  const m=oMask.getContext("2d");escTexto(m,t);m.fillStyle="#000";m.fillText(t,W/2,esc.base);
+  const ma=oMaskAncha.getContext("2d");escTexto(ma,t);ma.fillStyle=ma.strokeStyle="#000";ma.lineJoin="round";ma.lineWidth=esc.S*.16;ma.fillText(t,W/2,esc.base);ma.strokeText(t,W/2,esc.base);
+  esc.hecho=false;$("msgEsc").textContent="";
+  $("escLleva").textContent=`${esc.i+1} de ${ESCRITURA[esc.cat].length}`;
+}
+function escPunto(e){const r=cTinta.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top,p:e.pressure||.5}}
+function escLinea(a,b){
+  const grosor=Math.max(7,esc.S*.07);
+  xT.lineCap=xT.lineJoin="round";xT.strokeStyle=color("--huipil");
+  xT.lineWidth=grosor*(a.p&&cTinta.dataset.pen==="1"?0.7+a.p*0.6:1);
+  xT.beginPath();xT.moveTo(a.x,a.y);xT.lineTo(b.x,b.y);xT.stroke();
+  [[oTinta,grosor],[oTintaAncha,esc.S*.17]].forEach(([c,g])=>{const x=c.getContext("2d");x.lineCap=x.lineJoin="round";x.strokeStyle="#000";x.lineWidth=g;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x+.01,b.y);x.stroke()});
+}
+cTinta.addEventListener("pointerdown",e=>{
+  if(e.pointerType==="pen"){esc.lapiz=true;cTinta.dataset.pen="1"}
+  if(esc.lapiz&&e.pointerType==="touch")return; // con lápiz se ignora la palma de la mano
+  if(esc.hecho)return;
+  e.preventDefault();cTinta.setPointerCapture(e.pointerId);
+  clearTimeout(esc.tChk);esc.dibujando=true;esc.ultimo=escPunto(e);escLinea(esc.ultimo,esc.ultimo);
+});
+cTinta.addEventListener("pointermove",e=>{
+  if(!esc.dibujando)return;
+  const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+  (evs.length?evs:[e]).forEach(ev=>{const p=escPunto(ev);escLinea(esc.ultimo,p);esc.ultimo=p});
+});
+["pointerup","pointercancel"].forEach(t=>cTinta.addEventListener(t,()=>{
+  if(!esc.dibujando)return;esc.dibujando=false;
+  esc.tChk=setTimeout(()=>escRevisar(true),900);
+}));
+function escAlfa(c){return c.getContext("2d").getImageData(0,0,c.width,c.height).data}
+function escRevisar(auto){
+  if(esc.hecho)return;
+  const m=escAlfa(oMask),ma=escAlfa(oMaskAncha),ta=escAlfa(oTintaAncha),t=escAlfa(oTinta);
+  let letra=0,cubierta=0,tinta=0,fuera=0;
+  for(let i=3;i<m.length;i+=4){
+    if(m[i]>60){letra++;if(ta[i]>60)cubierta++}
+    if(t[i]>60){tinta++;if(ma[i]<60)fuera++}
+  }
+  const cob=letra?cubierta/letra:0,err=tinta?fuera/tinta:1;
+  if(cob>=.72&&err<=.22)return escExito();
+  if(auto)return;
+  if(!tinta){$("msgEsc").textContent="Sigue la letra gris con el lápiz";}
+  else if(err>.22){$("msgEsc").textContent="Trata de no salirte de la línea";}
+  else{$("msgEsc").textContent="¡Casi! Te falta un poquito";}
+  hablar($("msgEsc").textContent.replace(/¡|!/g,""));
+}
+function escExito(){
+  esc.hecho=true;esc.estrellas++;total++;guardar("cc_estrellas",total);
+  $("estrellasEsc").textContent=esc.estrellas;
+  $("msgEsc").textContent=FELICIDADES[azar(0,FELICIDADES.length-1)];
+  sBien();confeti();hablar($("msgEsc").textContent);
+  setTimeout(()=>{if(!esc.hecho)return;escMover(1)},2200);
+}
+function escMover(d){
+  clearTimeout(esc.tChk);
+  const n=ESCRITURA[esc.cat].length;esc.i=(esc.i+d+n)%n;
+  escGuia();escVoz();
+}
+function abrirEscribir(cat){
+  esc.cat=cat;esc.i=0;esc.estrellas=0;$("estrellasEsc").textContent=0;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("activo",c.dataset.cat===cat));
+  mostrar("escribir");
+  requestAnimationFrame(()=>{escGuia();escVoz()});
+}
+document.querySelectorAll("[data-abrir]").forEach(b=>b.onclick=()=>abrirEscribir(b.dataset.abrir));
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+  esc.cat=c.dataset.cat;esc.i=0;
+  document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("activo",x===c));
+  escGuia();escVoz();
+});
+$("escBorrar").onclick=()=>{esc.hecho=false;escGuia()};
+$("escListo").onclick=()=>{clearTimeout(esc.tChk);escRevisar(false)};
+$("escOir").onclick=escVoz;
+$("escSig").onclick=()=>escMover(1);
+$("escAnt").onclick=()=>escMover(-1);
+$("btnCasaEsc").onclick=()=>{clearTimeout(esc.tChk);esc.hecho=false;try{speechSynthesis.cancel()}catch(e){}pintarTotal();mostrar("inicio")};
+window.addEventListener("resize",()=>{if(!$("escribir").classList.contains("oculto"))escGuia()});
+$("btnCasaAbc").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}mostrar("inicio")};
+document.querySelectorAll(".pestana").forEach(p=>p.onclick=()=>{
+  document.querySelectorAll(".pestana").forEach(x=>x.classList.toggle("activa",x===p));
+  $("tab-num").hidden=p.dataset.tab!=="num";$("tab-leer").hidden=p.dataset.tab!=="leer";
+});
+
+// ---------- Eventos ----------
+document.querySelectorAll(".modo[data-modo]").forEach(b=>b.onclick=()=>empezar(b.dataset.modo));
+$("btnCasa").onclick=()=>{clearTimeout(temporizador);try{speechSynthesis.cancel()}catch(e){}pintarTotal();mostrar("inicio")};
+$("btnOir").onclick=leerProblema;
+$("btnContar").onclick=contarJuntos;
+$("btnOtra").onclick=()=>empezar(modo);
+$("btnInicio").onclick=()=>{pintarTotal();mostrar("inicio")};
+pintarTotal();
+try{speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+</script>
+<script>
+// Permite que la app funcione sin internet después de la primera vez
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+</script>
+</body>
+</html>
